@@ -1,0 +1,39 @@
+version: "3.7"
+services:
+  mysqldb:
+    image: mysql:5.7
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=mydb
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+    ports:
+      - 3307:3306
+    expose:
+      - '3306'  
+    container_name: "mysql-database"
+
+     
+  mongodb:
+    image: mongo:latest
+    ports: 
+      - 27017:27017
+    expose:
+      - '27017'
+    container_name: "mongo-database"
+
+    
+  multidatasource:
+    image: multidatasource  
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    depends_on:
+      - mysqldb
+      - mongodb
+    ports:
+      - "8088:8088"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-database:3306/mydb?autoReconnect=true&useSSL=false
+      SPRING.DATA.MONGODB.URI: mongodb://mongo-database:27017/test
